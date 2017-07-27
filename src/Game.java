@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 
@@ -28,8 +29,11 @@ public class Game extends JFrame implements KeyListener {
 
     private Vector p; //position
     private Vector v; //velocity
+    private Vector a; //acceleration
 
     private Vector sz; //size
+
+    private exampleclass myclass;
 
 
     public Game(int width, int height, int fps){
@@ -65,9 +69,12 @@ public class Game extends JFrame implements KeyListener {
         lastFrame = System.currentTimeMillis();
 
         p = new Vector(WIDTH/2, HEIGHT/2);
-        v = new Vector(-1, -2);
+        v = new Vector(500, 500);
+        a = new Vector(0, 0);
 
         sz = new Vector(100, 100);
+
+        myclass = new exampleclass(40, 50);
 
         //set background window color
         setBackground(Color.BLACK);
@@ -83,14 +90,26 @@ public class Game extends JFrame implements KeyListener {
 
         handleKeys();
 
-        if(p.x < 0) p.setX(p.x + 5);
-        if(p.x + sz.x > WIDTH) p.setX(p.x - 5);
-
-        if(p.y < 0) p.setY(p.y + 5);
-        if(p.y + sz.y > HEIGHT) p.setY(p.y - 5);
-
         //update game logic here
-        //p.add(v);
+        v.add(Vector.mult(a, dt));
+
+        //if(p.x < 0) p.setX(p.x + 5);
+        //if(p.x + sz.x > WIDTH) p.setX(p.x - 5);
+
+        if(p.x < 0 || p.x + sz.x > WIDTH) {
+            v.setX(-v.x);
+            p.add(Vector.mult(v, dt));
+        }
+
+        //if(p.y < 0) p.setY(p.y + 5);
+        //if(p.y + sz.y > HEIGHT) p.setY(p.y - 5);
+
+        if(p.y < 0 || p.y + sz.y > HEIGHT) {
+            v.setY(-v.y);
+            p.add(Vector.mult(v, dt));
+        }
+
+        p.add(Vector.mult(v, dt));
     }
 
     /*
@@ -105,8 +124,11 @@ public class Game extends JFrame implements KeyListener {
         //clear screen
         g.clearRect(0,0,WIDTH, HEIGHT);
 
-        g.setColor(new Color(56, 255, 255));
+        g.setColor(new Color(0, 209, 255));
         g.fillRect(p.ix, p.iy, sz.ix, sz.iy);
+
+        myclass.draw(g);
+        myclass.x++;
 
         //draw fps
         g.setColor(Color.GREEN);
@@ -121,16 +143,20 @@ public class Game extends JFrame implements KeyListener {
         for(int i = 0; i < keys.size(); i++){
             switch(keys.get(i)){
                 case KeyEvent.VK_UP:
-                    p.setY(p.y - 5);
+                    //p.setY(p.y - 5);
+                    a = new Vector(0, -5000);
                     break;
                 case KeyEvent.VK_DOWN:
-                    p.setY(p.y + 5);
+                    //p.setY(p.y + 5);
+                    a = new Vector(0, 5000);
                     break;
                 case KeyEvent.VK_LEFT:
-                    p.setX(p.x - 5);
+                    a = new Vector(-5000, 0);
+                    //p.setX(p.x - 5);
                     break;
                 case KeyEvent.VK_RIGHT:
-                    p.setX(p.x + 5);
+                    a = new Vector(5000, 0);
+                    //p.setX(p.x + 5);
                     break;
             }
         }
